@@ -15,7 +15,7 @@ public class ApplicationBMI {
 		System.out.println(report.toString());
 	}
 	
-	/**
+	/***
 	 * This function calculate the BMI based on provided weight and height
 	 * @param weight in Kilogram
 	 * @param height in Feet
