@@ -9,5 +9,5 @@ FROM openjdk:11-jre-slim
 
 WORKDIR /BMIApp
 
-COPY --from=build target/test-framework-*.jar ./apps/test-framework-*.jar
-CMD ["java", "-jar", "./apps/test-framework-*.jar"]
+COPY --from=build target/test-framework-0.0.1-SNAPSHOT.jar ./BMIDocker/test-framework-0.0.1-SNAPSHOT.jar
+CMD ["java", "-jar", "./BMIDocker/test-framework-0.0.1-SNAPSHOT.jar"]
