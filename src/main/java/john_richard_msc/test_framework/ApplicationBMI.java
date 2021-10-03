@@ -1,11 +1,17 @@
 package john_richard_msc.test_framework;
 
+import java.util.Scanner;
+
 public class ApplicationBMI {
 
 	public static void main(String[] args) {
-		String name = args[0];
-		double weight = Double.parseDouble(args[1]);
-		double height = Double.parseDouble(args[2]);
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Provide the Name: ");		
+		String name = scanner.nextLine();
+		System.out.println("Weight: ");		
+		double weight = scanner.nextDouble();
+		System.out.println("Height: ");		
+		double height = scanner.nextDouble();		
 		ApplicationBMI application = new ApplicationBMI();
 		Result result = application.getBMIResult(name, weight, height);
 		StringBuilder report = new StringBuilder();
@@ -13,6 +19,7 @@ public class ApplicationBMI {
 		report.append(result.getBmi());
 		report.append(result.getStatus());
 		System.out.println(report.toString());
+		scanner.close();
 	}
 	
 	/**
@@ -23,8 +30,7 @@ public class ApplicationBMI {
 	 */
 	protected double calculateBMI(double weight, double height) {
 		try{
-			height = convertToMeter(height);
-			System.out.print("Input weight in kilogram: "); System.out.print("\nInput height in meters: ");
+			height = convertToMeter(height);			
 		    double BMI = weight / (height * height);
 		    System.out.print("\nThe Body Mass Index (BMI) is " + BMI + " kg/m2");
 			return BMI;	
