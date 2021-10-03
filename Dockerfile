@@ -7,7 +7,7 @@ RUN mvn clean install -U
 
 FROM openjdk:11-jre-slim
 
-WORKDIR /parallel-pipeline/
+WORKDIR /BMIApp
 
 COPY --from=build target/test-framework-*.jar ./apps/test-framework-*.jar
 CMD ["java", "-jar", "./apps/test-framework-*.jar"]
