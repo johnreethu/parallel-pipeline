@@ -7,7 +7,7 @@ RUN mvn clean install -U
 
 FROM openjdk:11-jre-slim
 
-WORKDIR /devops_projects
+WORKDIR /parallel-pipeline
 
-COPY --from=build target/ScriptedPipeline-*.jar ./apps/ScriptedPipeline-*.jar
-CMD ["java", "-jar", "./apps/ScriptedPipeline-*.jar"]
+COPY --from=build target/test-framework-*.jar ./apps/test-framework-*.jar
+CMD ["java", "-jar", "./apps/test-framework-*.jar"]
