@@ -55,15 +55,16 @@ pipeline
             {
                 steps 
                 {
-                    //sh 'mvn test'
+                    sh 'mvn clean test'
                     echo "This is my unit test"
                 }
             
             }  
-            stage ('API Test') 
+            stage ('Code Coverage') 
             {
                 steps 
                 {
+                    sh 'mvn clean verify'
                     echo "This is my build step"
                 }
             
