@@ -10,14 +10,12 @@ pipeline
     
     environment 
 	{
-        DockerHub = 'hub.docker.com'
-        DockerImage = 'johnreethu/parallel-pipeline' 
-        DockerCredentials='docker_id'
+        DOCKERHUB = 'hub.docker.com'
+        DOCKERIMAGE = 'johnreethu/parallel-pipeline' 
+        DOCKERCREDENTIALS= credentials('docker_id')
         CI = 'true'
-        GitHub = 'johnreethu/parallel-pipeline'        
-        ARTIFACTROY_ACCESS_KEY = credentials('artifactory-access-key')
-
-    }
+        GITHUB-REPO = 'johnreethu/parallel-pipeline'     
+	}
     stages 
     {
         stage ('checkout') 
