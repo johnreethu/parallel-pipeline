@@ -99,7 +99,7 @@ pipeline
             {
                 steps 
                 {
-                    sh 'mvn clean verify'
+                    //sh 'mvn clean verify'
                     echo "This is my build step"
                 }
             
