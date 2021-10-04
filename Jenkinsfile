@@ -18,27 +18,27 @@ pipeline
               stage ('Build with Java 8') 
               
                 {
-                /*    agent 
+                    agent 
                     {
                         label 'Java8'
                     }
-                */    
+                    
                     steps 
                     {
-                        //sh 'mvn compile'
+                        sh 'mvn compile'
                         echo "This is my build step"
                     }
                 }  
                 stage ('build with Java 11') 
                 {
-                /*    agent 
+                   agent 
                     {
                         label 'Java11'
                     }
-                */    
+                   
                     steps 
                     {
-                        //sh 'mvn compile'
+                        sh 'mvn compile'
                         echo "This is my build step"
                     }
                 
