@@ -14,7 +14,7 @@ pipeline
         DOCKERIMAGE = 'johnreethu/parallel-pipeline' 
         DOCKERCREDENTIALS= credentials('docker_id')
         CI = 'true'
-        GITHUB-REPO = 'johnreethu/parallel-pipeline'     
+        GITHUB-REPO = 'github.com/johnreethu/parallel-pipeline'     
 	}
     stages 
     {
