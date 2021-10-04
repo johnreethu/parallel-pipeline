@@ -1,38 +1,122 @@
-pipeline {
+pipeline 
+{
     agent any
-
-    stages {
-        stage ('Stg1'){
-            steps {
-                echo "Step 1"
-            }
-        }
-        stage ('Stg2'){
-            parallel
+    stages 
+    {
+        stage ('checkout') 
+        {
+            steps 
             {
-                stage("2.1"){
-                    steps {
-                        echo "This is step 2.1"
-                    }
-                }
-                stage("2.2"){
-                    steps {
-                        echo "This is step 2.2"
-                    }
-                }
+                echo "This is my CheckOut step"
             }
         }
-        stage ('Stg3') {
-
-            when {
-                not {
-                    branch "master"
+        
+        stage ('Build')
+        {
+           parallel
+            {
+              stage ('Build with Java 8') 
+              
+                {
+                /*    agent 
+                    {
+                        label 'Java8'
+                    }
+                */    
+                    steps 
+                    {
+                        //sh 'mvn compile'
+                        echo "This is my build step"
+                    }
+                }  
+                stage ('build with Java 11') 
+                {
+                /*    agent 
+                    {
+                        label 'Java11'
+                    }
+                */    
+                    steps 
+                    {
+                        //sh 'mvn compile'
+                        echo "This is my build step"
+                    }
+                
+                }  
+                
+            }  
+        }
+       
+      stage ('test') 
+      {
+        parallel
+        {
+          stage ('Unit Test') 
+            {
+                steps 
+                {
+                    //sh 'mvn test'
+                    echo "This is my unit test"
                 }
-            }
-            steps {
-                    echo "Run if not master"
+            
+            }  
+            stage ('API Test') 
+            {
+                steps 
+                {
+                    echo "This is my build step"
+                }
+            
+            }  
+            stage ('System Test') 
+            {
+                steps 
+                {
+                    echo "This is my build step"
+                }
+            
+            }  
+        } 
+      }
+       
+        
+        stage ('Build-Push') 
+        {
+            stages 
+            {
+                stage ('build image')
+                {
+                    steps
+                    {
+                        echo "Build image from Docker Plugin"
+                    }
+                    
+                }
+                stage ('login and push')
+                {
+                    steps
+                    {
+                        echo "Login to docker hub and push the image to repository using plugin"
+                    }
+                    
+                }
             }
             
+            post  ('logout')
+            {
+                always 
+                {
+                    echo "Logout from Docker Hub by using plugin"
+                }
+            }
+            
+        }
+        stage ('production') 
+        {
+            steps 
+            {
+                echo "This is my Production step"
+            }
         }
     }
 }
