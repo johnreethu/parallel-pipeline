@@ -13,10 +13,10 @@ pipeline
         	//Set the environmental variables to be used in the script below. 
 		DOCKERHUB = 'hub.docker.com'
         	DOCKERIMAGE = 'johnreethu/parallel-pipeline' 
-        	DOCKERCREDENTIALS= credentials('docker_id')
+        	DOCKERCREDENTIALS= credentials('repo-access-token')
         	CI = 'true'
         	GITHUB-REPO = 'github.com/johnreethu/parallel-pipeline'
-		DOCKERFILE = 'APP-NAME'
+		APP-NAME = 'DockerFile'
 	}
 	
 	options 
@@ -27,11 +27,6 @@ pipeline
 		skipStagesAfterUnstable()
     	}
 	
-	parameters 
-	{ 
-        string(name: 'APP', defaultValue: 'triangle_app', description: 'The name of the sample application') 
-        string(name: 'MAIL_ID', defaultValue: '$DEFAULT_RECIPIENTS', description: 'Email ID(s) of the developer(s)')
-       }
 	
     stages 
 	//These are the srages defined in the the pipeline. All the stages will be executed for the branches
