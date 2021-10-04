@@ -16,7 +16,7 @@ pipeline
         	DOCKERCREDENTIALS= credentials('repo-access-token')
         	CI = 'true'
         	GITHUB-REPO = 'github.com/johnreethu/parallel-pipeline'
-		APP-NAME = 'DockerFile'
+		
 	}
 	
 	options 
@@ -45,39 +45,9 @@ pipeline
         
         stage ('Build')
         {
-            //To experiment the parallel branching and build of the code. The code is compiled using different versions of the Java Compiler.
-	    parallel
-            {
-              stage ('Build with Java 8') 
-              
-                {
-                /*    agent 
-                    {
-                        label 'java8'
-                    }
-                */    
-                    steps 
-                    {
-                        //Maven is being called through the Agent with the label "java8' that is tagged in the label section of Agent configuration. Same applies to below secment too.
-			//sh 'mvn compile'
-                        echo "This is my build step"
-                    }
-                }  
-                stage ('build with Java 11') 
-                {
-                 /*  agent 
-                    {
-                        label 'java11'
-                    }
-                 */   
-                    steps 
-                    {
-                        //sh 'mvn compile'
-                        echo "This is my build step"
-                    }
-                
-                }  
-                
+          steps 
+	   {
+                sh 'mvn compile'
             }  
         }
        
