@@ -1,6 +1,23 @@
 pipeline 
 {
-    agent any
+    agent
+    {
+        node 
+		{
+            label 'maven'    
+        }
+    }
+    
+    environment 
+	{
+        DockerHub = 'hub.docker.com'
+        DockerImage = 'johnreethu/parallel-pipeline' 
+        DockerCredentials='docker_id'
+        CI = 'true'
+        GitHub = 'johnreethu/parallel-pipeline'        
+        ARTIFACTROY_ACCESS_KEY = credentials('artifactory-access-key')
+
+    }
     stages 
     {
         stage ('checkout') 
@@ -81,32 +98,57 @@ pipeline
       }
        
         
-        stage ('Build-Push') 
-        {
+        stage('Build-Push') 
+	    {
+            
+            // any agent with a label docker will be picked
+            
+            agent 
+		    {
+                node 
+                {
+                    label 'docker' 
+                } 
+            }
+            when 
+		    {
+               branch 'main'
+            }
             stages 
-            {
-                stage ('build image')
-                {
-                    steps
-                    {
-                        echo "Build image from Docker Plugin"
+		     {
+                stage('buid image') 
+			    {
+                    steps 
+				    {
+                        sh 'docker build -t $GitHub/$app .'
                     }
-                    
                 }
-                stage ('login and push')
-                {
-                    steps
-                    {
-                        echo "Login to docker hub and push the image to repository using plugin"
+                stage('Login into docker hub') 
+			    {
+                    steps 
+				    {
+                        sh 'echo $DockerCredentials_PSW | docker login $DockerHub -u $DockerCredentials_USR --password-stdin'
                     }
-                    
+                }
+                stage('Push the image to docker hub') 
+			    {
+                
+                    steps 
+					{
+                        sh '''
+                        docker tag $GitHub/$app $DockerImage:v-$BUILD_NUMBER
+                        docker push $DockerImage:v-$BUILD_NUMBER
+                        '''
+                    }
                 }
             }
+
             
             post  ('logout')
             {
                 always 
                 {
+                    sh 'docker logout'
                     echo "Logout from Docker Hub by using plugin"
                 }
             }
