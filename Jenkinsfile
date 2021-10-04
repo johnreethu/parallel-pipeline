@@ -3,32 +3,48 @@ pipeline
     agent
     {
         node 
-		{
+	{
             label 'maven'    
         }
     }
     
     environment 
 	{
-        DOCKERHUB = 'hub.docker.com'
-        DOCKERIMAGE = 'johnreethu/parallel-pipeline' 
-        DOCKERCREDENTIALS= credentials('docker_id')
-        CI = 'true'
-        GITHUB-REPO = 'github.com/johnreethu/parallel-pipeline'     
+        	//Set the environmental variables to be used in the script below. 
+		DOCKERHUB = 'hub.docker.com'
+        	DOCKERIMAGE = 'johnreethu/parallel-pipeline' 
+        	DOCKERCREDENTIALS= credentials('docker_id')
+        	CI = 'true'
+        	GITHUB-REPO = 'github.com/johnreethu/parallel-pipeline'     
 	}
+	
+	options 
+	{
+		// Configure an overall timeout for the build of one hour.
+		timeout(time: 1, unit: 'HOURS')
+		// When we have test-fails e.g. we don't need to run the remaining steps
+		skipStagesAfterUnstable()
+    	}
+	
     stages 
+	//These are the srages defined in the the pipeline. All the stages will be executed for the branches
+	//"main", "test","deploy"
+	//As per the branching strategy, final stage pushing the the file to artifactory will be done only in "main" branch
     {
         stage ('checkout') 
         {
             steps 
             {
-                echo "This is my CheckOut step"
+                //This will checkout the code from Repo.
+		 echo "This is my CheckOut step"
+		//checkout([$class: 'GitHub', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: $GITHUB-REPO]]])      
             }
-        }
+      }
         
         stage ('Build')
         {
-           parallel
+            //To experiment the parallel branching and build of the code. The code is compiled using different versions of the Java Compiler.
+	    parallel
             {
               stage ('Build with Java 8') 
               
@@ -40,7 +56,8 @@ pipeline
                 */    
                     steps 
                     {
-                        //sh 'mvn compile'
+                        //Maven is being called through the Agent with the label "java8' that is tagged in the label section of Agent configuration. Same applies to below secment too.
+			//sh 'mvn compile'
                         echo "This is my build step"
                     }
                 }  
@@ -64,7 +81,8 @@ pipeline
        
       stage ('test') 
       {
-        parallel
+        //Testing block of the pipeline. The app is being tested through Maven Comments.
+	parallel
         {
           stage ('Unit Test') 
             {
@@ -86,7 +104,8 @@ pipeline
             }  
             stage ('System Test') 
             {
-                steps 
+                //This is the sample segment only for parallel pipeline. Since it is simple native java application, unit test covers the test scenarios.
+		steps 
                 {
                     echo "This is my build step"
                 }
@@ -99,46 +118,47 @@ pipeline
         stage('Build-Push') 
 	    {
             
-            // any agent with a label docker will be picked
-            
+            // The code below is with "docker' label as mentioned in Agent1. Any agent with a label name "docker" will be picked and code will be executed.
+            //The code is executed only for "main" branch.
             agent 
-		    {
-                node 
-                {
-                    label 'docker' 
-                } 
-            }
+		{
+                	node 
+                	{
+                    		label 'docker' 
+                	} 
+            	}
             when 
-		    {
-               branch 'main'
-            }
+		{
+               		branch 'main'
+            	}
             stages 
-		     {
-                stage('buid image') 
+		{
+                	stage('buid image') 
 			    {
-                    steps 
+                    		steps 
 				    {
-                        sh 'docker build -t $GitHub/$app .'
-                    }
-                }
-                stage('Login into docker hub') 
-			    {
-                    steps 
-				    {
-                        sh 'echo $DockerCredentials_PSW | docker login $DockerHub -u $DockerCredentials_USR --password-stdin'
-                    }
-                }
-                stage('Push the image to docker hub') 
-			    {
+                        		sh 'docker build -t $GITHUB-REPO .'
+                    		}
+                	}
+                	stage('Login into docker hub') 
+			{
+                    		steps 
+		    		{
+                        		sh 'echo $DOCKERCREDENTIALS_PSW | docker login $DOCKERHUB -u $DOCKERCREDENTIALS_USR --password-stdin'
+                    		}
+                	}
+			     
+                	stage('Push the image to docker hub') 
+			{
                 
-                    steps 
-					{
-                        sh '''
-                        docker tag $GitHub/$app $DockerImage:v-$BUILD_NUMBER
-                        docker push $DockerImage:v-$BUILD_NUMBER
-                        '''
-                    }
-                }
+                    		steps 
+		  		{
+					sh '''
+					docker tag $GITHUB-REPO/$app $DockerImage:v-$BUILD_NUMBER
+					docker push $DockerImage:v-$BUILD_NUMBER
+					'''
+                    		}
+                	}
             }
 
             
