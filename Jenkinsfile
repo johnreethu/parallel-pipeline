@@ -20,7 +20,7 @@ pipeline
                 {
                     agent 
                     {
-                        label 'Java8'
+                        label 'java8'
                     }
                     
                     steps 
@@ -33,7 +33,7 @@ pipeline
                 {
                    agent 
                     {
-                        label 'Java11'
+                        label 'java11'
                     }
                    
                     steps 
