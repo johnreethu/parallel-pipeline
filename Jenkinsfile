@@ -15,16 +15,23 @@ pipeline
         	DOCKERIMAGE = 'johnreethu/parallel-pipeline' 
         	DOCKERCREDENTIALS= credentials('docker_id')
         	CI = 'true'
-        	GITHUB-REPO = 'github.com/johnreethu/parallel-pipeline'     
+        	GITHUB-REPO = 'github.com/johnreethu/parallel-pipeline'
+		DOCKERFILE = 'APP-NAME'
 	}
 	
 	options 
 	{
-		// Configure an overall timeout for the build of one hour.
+		// Set the time limit for Pipeline with overall timeout for the build of one hour.
 		timeout(time: 1, unit: 'HOURS')
 		// When we have test-fails e.g. we don't need to run the remaining steps
 		skipStagesAfterUnstable()
     	}
+	
+	parameters 
+	{ 
+        string(name: 'APP', defaultValue: 'triangle_app', description: 'The name of the sample application') 
+        string(name: 'MAIL_ID', defaultValue: '$DEFAULT_RECIPIENTS', description: 'Email ID(s) of the developer(s)')
+       }
 	
     stages 
 	//These are the srages defined in the the pipeline. All the stages will be executed for the branches
@@ -120,6 +127,7 @@ pipeline
             
             // The code below is with "docker' label as mentioned in Agent1. Any agent with a label name "docker" will be picked and code will be executed.
             //The code is executed only for "main" branch.
+	    //Values are fetched from environment variables.
             agent 
 		{
                 	node 
@@ -137,7 +145,7 @@ pipeline
 			    {
                     		steps 
 				    {
-                        		sh 'docker build -t $GITHUB-REPO .'
+                        		sh 'docker build -t $GITHUB-REPO/$APP-NAME .'
                     		}
                 	}
                 	stage('Login into docker hub') 
@@ -154,8 +162,8 @@ pipeline
                     		steps 
 		  		{
 					sh '''
-					docker tag $GITHUB-REPO/$app $DockerImage:v-$BUILD_NUMBER
-					docker push $DockerImage:v-$BUILD_NUMBER
+					docker tag $GITHUB-REPO/$APP-NAME $DOCKERIMAGE:v-$BUILD_NUMBER
+					docker push $DOCKERIMAGE:v-$BUILD_NUMBER
 					'''
                     		}
                 	}
@@ -172,6 +180,8 @@ pipeline
             }
             
         }
+	
+	//Dummy Code for Production deployment.
         stage ('production') 
         {
             steps 
@@ -179,5 +189,16 @@ pipeline
                 echo "This is my Production step"
             }
         }
+	post 
+	 {
+        	failure 
+		 {
+            		echo "Build Numbe: " $BUILD_NO
+			echo "is failed"
+			echo "For more details, Please refer below URL"
+			echo $JENKINS_URL
+			
+        	}
+    	}  
     }
 }
