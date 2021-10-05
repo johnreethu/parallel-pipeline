@@ -164,21 +164,20 @@ pipeline
             }
         }
 
-        stage
+        
+        post ('final message')
         {
-             post ('final message')
+            failure 
             {
-                failure 
-                {
-                    //using the parameters generated from Jenkins
-                    echo 'Build Number: $BUILD_NO'
-                    echo "is failed"
-                    echo "For more details, Please refer below URL"
-                    echo '$JENKINS_URL'
-                
-                }
-            }  
-        }
+                //using the parameters generated from Jenkins
+                echo 'Build Number: $BUILD_NO'
+                echo "is failed"
+                echo "For more details, Please refer below URL"
+                echo '$JENKINS_URL'
+            
+            }
+        }  
+        
 	   
     }
 }
