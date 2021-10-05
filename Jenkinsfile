@@ -136,7 +136,11 @@ pipeline
 		  		    {
 					    sh 'docker tag $IMAGE_NAME/$APP_NAME $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'
 					    sh 'docker push $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'	
-					    if (success)
+                    } 
+
+                    steps
+                    {   
+                        if (success)
 					    {
 						    echo "Image is stored in Docker Hub"
 						
@@ -167,17 +171,22 @@ pipeline
                 echo "This is my Production step"
             }
         }
-	    post ('final message')
-	    {
-        	failure 
-		    {
-			//using the parameters generated from Jenkins
-			echo "Build Numbe: " $BUILD_NO
-			echo "is failed"
-			echo "For more details, Please refer below URL"
-			echo $JENKINS_URL
-			
-        	}
-    	}  
+
+        stage
+        {
+             post ('final message')
+            {
+                failure 
+                {
+                    //using the parameters generated from Jenkins
+                    echo "Build Numbe: " $BUILD_NO
+                    echo "is failed"
+                    echo "For more details, Please refer below URL"
+                    echo $JENKINS_URL
+                
+                }
+            }  
+        }
+	   
     }
 }
