@@ -15,7 +15,7 @@ pipeline
         	DOCKERIMAGE = 'johnreethu/parallel-pipeline' 
         	DOCKERCREDENTIALS= credentials('repo-access-token')
         	CI = 'true'
-        	GITHUB-REPO = 'github.com/johnreethu/parallel-pipeline'
+        	GITHUB_REPO = 'johnreethu/parallel-pipeline'
 		
 	}
 	
@@ -110,7 +110,7 @@ pipeline
 			    {
                     		steps 
 				    {
-                        		sh 'docker build -t $GITHUB-REPO/$APP-NAME .'
+                        		sh 'docker build -t $GITHUB-REPO/$APP .'
                     		}
                 	}
                 	stage('Login into docker hub') 
@@ -127,7 +127,7 @@ pipeline
                     		steps 
 		  		{
 					sh '''
-					docker tag $GITHUB-REPO/$APP-NAME $DOCKERIMAGE:v-$BUILD_NUMBER
+					docker tag $GITHUB-REPO/$APP $DOCKERIMAGE:v-$BUILD_NUMBER
 					docker push $DOCKERIMAGE:v-$BUILD_NUMBER
 					'''
                     		}
@@ -154,9 +154,9 @@ pipeline
                 echo "This is my Production step"
             }
         }
-	post 
+	post ('final message')
 	 {
-        	failure 
+        	always 
 		 {
             		echo "Build Numbe: " $BUILD_NO
 			echo "is failed"
