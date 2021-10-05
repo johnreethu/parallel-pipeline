@@ -156,7 +156,7 @@ pipeline
         }
 	post ('final message')
 	 {
-        	always 
+        	failure 
 		 {
             		echo "Build Numbe: " $BUILD_NO
 			echo "is failed"
