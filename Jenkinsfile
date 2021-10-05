@@ -3,20 +3,22 @@ pipeline
     agent
     {
         node 
-	{
+	    {
             label 'maven'    
         }
     }
     
     environment 
 	{
-        	//Set the environmental variables to be used in the script below.
+        //Set the environmental variables to be used in the script below.
 		//Docker Hub location where the file will be pushed to.
-		DOCKERIMAGE = 'hub.docker.com/johnreethu/parallel-pipeline' 
+		DOCKER_HUB = 'hub.docker.com' 
 		//This is the credential stored in Jenkins Global Credentials with "docker_id"
-        	DOCKERCREDENTIALS= credentials('docker_id')
+        	DOCKERCREDENTIALS = credentials('docker_id')
         	CI = 'true'
-        	GITHUB_REPO = 'johnreethu/parallel-pipeline'
+        	IMAGE_NAME = 'johnreethu/parallel-pipeline'
+		GITHUB_LINK = 'github.com/johnreethu/parallel-pipeline'
+		APP_NAME = 'BMICalculator'
 		
 	}
 	
@@ -26,7 +28,7 @@ pipeline
 		timeout(time: 1, unit: 'HOURS')
 		// When we have test-fails e.g. we don't need to run the remaining steps
 		skipStagesAfterUnstable()
-    	}
+    }
 	
 	
     stages 
@@ -39,53 +41,58 @@ pipeline
             steps 
             {
                 //This will checkout the code from Repo.
-		 echo "This is my CheckOut step"
-		//checkout([$class: 'GitHub', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: $GITHUB-REPO]]])      
+		        echo "This is my CheckOut step"
+		    //checkout([$class: 'GitHub', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: $GITHUB_LINK]]])      
             }
-      }
+        }
         
         stage ('Build')
         {
           steps 
-	   {
+	        {
                 sh 'mvn compile'
             }  
         }
        
-      stage ('test') 
-      {
-        //Testing block of the pipeline. The app is being tested through Maven Comments.
-	parallel
+        stage ('test') 
         {
-          stage ('Unit Test') 
+            //Testing block of the pipeline. The app is being tested through Maven Comments.
+	        parallel
             {
-                steps 
+                stage ('Unit Test') 
                 {
-                    sh 'mvn clean test'
-                    echo "This is my unit test"
-                }
+                    steps 
+                        {
+                            sh 'mvn clean test'
+                            echo "This is my unit test"
+                        }
             
-            }  
-            stage ('Code Coverage') 
-            {
-                steps 
+                }  
+                stage ('Code Coverage') 
+                {    
+                    steps 
+                    {
+                        sh 'mvn clean verify'
+                        echo "This is my build step"
+                    }
+                    
+                }  
+                stage ('System Test') 
                 {
-                    sh 'mvn clean verify'
-                    echo "This is my build step"
-                }
-            
-            }  
-            stage ('System Test') 
-            {
-                //This is the sample segment only for parallel pipeline. Since it is simple native java application, unit test covers the test scenarios.
-		steps 
-                {
-                    echo "This is my build step"
-                }
-            
-            }  
-        } 
-      }
+                    //This is the sample segment only for parallel pipeline. Since it is simple native java application, unit test covers the test scenarios.
+                    steps 
+                    {
+                        sh 'java -version'
+                        sh 'java'
+                        sh 'javac'
+                        sh 'mvn -v'
+                        sh 'docker -v'
+                        sh 'systemctl status docker'
+                    }
+                
+                }  
+            } 
+        }
        
         
         stage('Build-Push') 
@@ -93,53 +100,57 @@ pipeline
             
             // The code below is with "docker' label as mentioned in Agent1. Any agent with a label name "docker" will be picked and code will be executed.
             //The code is executed only for "main" branch.
-	    //Values are fetched from environment variables.
+	        //Values are fetched from environment variables.
             agent 
-		{
-                	node 
+		    {
+                node 
                 	{
                     		label 'docker' 
                 	} 
-            	}
+            }
             when 
-		{
-               		branch 'main'
-            	}
+		    {
+               	branch 'main'
+            }
             stages 
-		{
-                	stage('buid image') 
+		    {
+                stage('buid image') 
 			    {
-                    		steps 
+                    steps 
 				    {
-                        		sh 'docker build -t $GITHUB_REPO/$APP .'
-                    		}
-                	}
-                	stage('Login into docker hub') 
-			{
-                    		steps 
+                        sh 'docker build -t $IMAGE_NAME/$APP_NAME .'
+                    }
+                }
+                stage('Login into docker hub') 
+			    {
+                    steps 
 		    		{
-                        		sh 'echo $DOCKERCREDENTIALS_PSW | docker login -u $DOCKERCREDENTIALS_USR --password-stdin'
-                    		}
-                	}
+                        sh 'echo $DOCKERCREDENTIALS_PSW | docker login $DOCKER_HUB -u $DOCKERCREDENTIALS_USR --password-stdin'
+                    }
+                }
 			     
-                	stage('Push the image to docker hub') 
-			{
-                                //Tag the file and push it to DockerHub.
-                    		steps 
-		  		{
-					sh docker tag $GITHUB_REPO/$APP $DOCKERIMAGE:v-$BUILD_NUMBER
-					sh docker push $DOCKERIMAGE:v-$BUILD_NUMBER
-					echo "Image is stored in Docker Hub"
+                stage('Push the image to docker hub') 
+			    {
+                    //Tag the file and push it to DockerHub.
+                    steps 
+		  		    {
+					    sh 'docker tag $IMAGE_NAME/$APP_NAME $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'
+					    sh 'docker push $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'	
+					    if (success)
+					    {
+						    echo "Image is stored in Docker Hub"
+						
+					    }
 					
-                    		}
-                	}
+                    }
+                }
             }
 
             
             post  ('logout')
             {
                 //It is the best practice to logout from docker
-		always 
+		        always 
                 {
                     sh 'docker logout'
                     echo "Logout from Docker Hub by using plugin"
@@ -148,7 +159,7 @@ pipeline
             
         }
 	
-	//Dummy Code for Production deployment.
+	    //Dummy Code for Production deployment.
         stage ('production') 
         {
             steps 
@@ -156,11 +167,12 @@ pipeline
                 echo "This is my Production step"
             }
         }
-	post ('final message')
-	 {
+	    post ('final message')
+	    {
         	failure 
-		 {
-            		echo "Build Numbe: " $BUILD_NO
+		    {
+			//using the parameters generated from Jenkins
+			echo "Build Numbe: " $BUILD_NO
 			echo "is failed"
 			echo "For more details, Please refer below URL"
 			echo $JENKINS_URL
