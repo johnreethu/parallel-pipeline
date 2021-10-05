@@ -82,7 +82,7 @@ pipeline
                     //This is the sample segment only for parallel pipeline. Since it is simple native java application, unit test covers the test scenarios.
                     steps 
                     {
-                        sh 'java -version'                        
+                              
                         sh 'mvn -v'
                         sh 'docker -v'
                         sh 'systemctl status docker'
