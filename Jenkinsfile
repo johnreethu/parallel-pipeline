@@ -110,7 +110,7 @@ pipeline
 			    {
                     		steps 
 				    {
-                        		sh 'docker build -t $GITHUB-REPO/$APP .'
+                        		sh 'docker build -t $GITHUB_REPO/$APP .'
                     		}
                 	}
                 	stage('Login into docker hub') 
@@ -127,7 +127,7 @@ pipeline
                     		steps 
 		  		{
 					sh '''
-					docker tag $GITHUB-REPO/$APP $DOCKERIMAGE:v-$BUILD_NUMBER
+					docker tag $GITHUB_REPO/$APP $DOCKERIMAGE:v-$BUILD_NUMBER
 					docker push $DOCKERIMAGE:v-$BUILD_NUMBER
 					'''
                     		}
