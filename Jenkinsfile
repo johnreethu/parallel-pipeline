@@ -18,7 +18,7 @@ pipeline
         	CI = 'true'
         	IMAGE_NAME = 'johnreethu/parallel-pipeline'
 		GITHUB_LINK = 'github.com/johnreethu/parallel-pipeline'
-		APP_NAME = 'BMICalculator'
+		APP_NAME = 'bmi_calculator'
 		
 	}
 	
