@@ -10,10 +10,11 @@ pipeline
     
     environment 
 	{
-        	//Set the environmental variables to be used in the script below. 
-		DOCKERHUB = 'hub.docker.com'
-        	DOCKERIMAGE = 'johnreethu/parallel-pipeline' 
-        	DOCKERCREDENTIALS= credentials('repo-access-token')
+        	//Set the environmental variables to be used in the script below.
+		//Docker Hub location where the file will be pushed to.
+		DOCKERIMAGE = 'hub.docker.com/johnreethu/parallel-pipeline' 
+		//This is the credential stored in Jenkins Global Credentials with "docker_id"
+        	DOCKERCREDENTIALS= credentials('docker_id')
         	CI = 'true'
         	GITHUB_REPO = 'johnreethu/parallel-pipeline'
 		
@@ -69,7 +70,7 @@ pipeline
             {
                 steps 
                 {
-                    //sh 'mvn clean verify'
+                    sh 'mvn clean verify'
                     echo "This is my build step"
                 }
             
@@ -117,19 +118,19 @@ pipeline
 			{
                     		steps 
 		    		{
-                        		sh 'echo $DOCKERCREDENTIALS_PSW | docker login $DOCKERHUB -u $DOCKERCREDENTIALS_USR --password-stdin'
+                        		sh 'echo $DOCKERCREDENTIALS_PSW | docker login -u $DOCKERCREDENTIALS_USR --password-stdin'
                     		}
                 	}
 			     
                 	stage('Push the image to docker hub') 
 			{
-                
+                                //Tag the file and push it to DockerHub.
                     		steps 
 		  		{
-					sh '''
-					docker tag $GITHUB_REPO/$APP $DOCKERIMAGE:v-$BUILD_NUMBER
-					docker push $DOCKERIMAGE:v-$BUILD_NUMBER
-					'''
+					sh docker tag $GITHUB_REPO/$APP $DOCKERIMAGE:v-$BUILD_NUMBER
+					sh docker push $DOCKERIMAGE:v-$BUILD_NUMBER
+					echo "Image is stored in Docker Hub"
+					
                     		}
                 	}
             }
@@ -137,7 +138,8 @@ pipeline
             
             post  ('logout')
             {
-                always 
+                //It is the best practice to logout from docker
+		always 
                 {
                     sh 'docker logout'
                     echo "Logout from Docker Hub by using plugin"
@@ -156,7 +158,7 @@ pipeline
         }
 	post ('final message')
 	 {
-        	always 
+        	failure 
 		 {
             		echo "Build Numbe: " $BUILD_NO
 			echo "is failed"
