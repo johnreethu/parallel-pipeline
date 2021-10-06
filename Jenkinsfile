@@ -23,8 +23,7 @@ pipeline
 	{
         //Set the environmental variables to be used in the script below.
 		//This is the credential stored in Jenkins Global Credentials with "docker_id"
-        	DOCKERCREDENTIALS = credentials('docker_id')
-        	CI = 'true'
+        	DOCKERCREDENTIALS = credentials('docker_id')        	
         	REPO_NAME = 'johnreethu/parallel-pipeline'
 		GITHUB_LINK = 'github.com/johnreethu/parallel-pipeline'
 		APP_NAME = 'bmi_calculator'
@@ -49,7 +48,7 @@ pipeline
         {
             steps 
             {
-                //This will checkout the code from Repo.
+                //This will checkout the code from Repo, but it is commented as we are using webhook for the code.
 		        echo "This is my CheckOut step"
 		    //checkout([$class: 'GitHub', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: $GITHUB_LINK]]])      
             }
@@ -82,7 +81,7 @@ pipeline
                     steps 
                     {
                         sh 'mvn clean verify'
-                        echo "This is my build step"
+                        echo "This is my build step. Maven executed and completed the test"
                     }
                     
                 }  
@@ -94,6 +93,7 @@ pipeline
                         sh 'mvn -v'
                         sh 'docker -v'
                         sh 'systemctl status docker'
+			echo "This is my system test stage. As system test is not required for this app, just printing mvn, docker comments."
                     }
                 
                 }  
@@ -127,6 +127,7 @@ pipeline
                         sh 'docker build -t $REPO_NAME:$APP_NAME .'
                     }
                 }
+		//In this stage, the script will login to the Docker Hub by supplying credential that are set up in Jenkins Global Credentials.	    
                 stage('Login into docker hub') 
 			    {
                     steps 
@@ -137,7 +138,7 @@ pipeline
 			     
                 stage('Push the image to docker hub') 
 			    {
-                    //Tag the file and push it to DockerHub.
+                    //Tag the file that is from the repo docker file and push it to DockerHub. Tagging is always important. Push comment will place the image in Docker Hub.
                     steps 
 		  		    {
 					    sh 'docker tag $REPO_NAME:$APP_NAME $REPO_NAME:$APP_NAME-$BUILD_NUMBER'
@@ -151,8 +152,8 @@ pipeline
             
             post  ('logout')
             {
-                //It is the best practice to logout from docker
-		        always 
+                //It is the best practice to logout from docker to ensure the security is imposed.
+		always 
                 {
                     sh 'docker logout'
                     echo 'Logout from Docker Hub by using plugin'
@@ -168,9 +169,7 @@ pipeline
             {
                 echo 'This is my Production step'
             }
-        }
-
-       
+        }       
 	   
     }
     //Post information in the screen in case of build failed. More global variables can be added.
