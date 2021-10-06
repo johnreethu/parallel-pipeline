@@ -6,6 +6,7 @@ Repo: https://github.com/johnreethu/parallel-pipeline/
 Date of Completion : 05-Oct-2021
 Reference Online Material: https://www.jenkins.io/doc/book/pipeline/syntax/ (Pipeline Syntax)
 Reference YouTube: https://www.youtube.com/watch?v=qQS7Idaq_ME&list=PLvBBnHmZuNQJeznYL2F-MpZYBUeLIXYEe (CloudBees TV - Darin Pope)
+Reference Github: https://github.com/darinpope/multibranch-sample-app
 Further References : Lecture Notes given by Ruth Lennon, online references, blogs & YouTube videos.
 */
 
