@@ -129,8 +129,8 @@ pipeline
                     //Tag the file and push it to DockerHub.
                     steps 
 		  		    {
-					    sh 'docker tag $REPO_NAME:$APP_NAME $REPO_NAME:$APP_NAME:VERSION-$BUILD_NUMBER'
-					    sh 'docker push $REPO_NAME:$APP_NAME:VERSION-$BUILD_NUMBER'	
+					    sh 'docker tag $REPO_NAME:$APP_NAME $REPO_NAME:$APP_NAME-$BUILD_NUMBER'
+					    sh 'docker push $REPO_NAME:$APP_NAME-$BUILD_NUMBER'	
                     }
         
                     
