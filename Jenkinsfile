@@ -1,3 +1,14 @@
+/*
+Script Name : Parallel-Pipeline
+Purpose : Generate Automated Pipeline for multibranch repo from GitHub. Also deal build issues through Pull Requests when the jobs has issues.
+Author: John Richard / LNo:l00163194 LYIT Master's Student (M.Sc DevOps)
+Repo: https://github.com/johnreethu/parallel-pipeline/
+Date of Completion : 05-Oct-2021
+Reference Online Material: https://www.jenkins.io/doc/book/pipeline/syntax/ (Pipeline Syntax)
+Reference YouTube: https://www.youtube.com/watch?v=qQS7Idaq_ME&list=PLvBBnHmZuNQJeznYL2F-MpZYBUeLIXYEe (CloudBees TV - Darin Pope)
+Declaration : The code has been written through the knowledge gained from Lecture Notes given by Ruth Lennon, online references, YouTube videos.
+*/
+
 pipeline 
 {
     agent
@@ -11,12 +22,10 @@ pipeline
     environment 
 	{
         //Set the environmental variables to be used in the script below.
-		//Docker Hub location where the file will be pushed to.
-		DOCKER_HUB = 'hub.docker.com' 
 		//This is the credential stored in Jenkins Global Credentials with "docker_id"
         	DOCKERCREDENTIALS = credentials('docker_id')
         	CI = 'true'
-        	IMAGE_NAME = 'johnreethu/parallel-pipeline'
+        	REPO_NAME = 'johnreethu/parallel-pipeline'
 		GITHUB_LINK = 'github.com/johnreethu/parallel-pipeline'
 		APP_NAME = 'bmi_calculator'
 		
@@ -79,7 +88,7 @@ pipeline
                 }  
                 stage ('System Test') 
                 {
-                    //This is the sample segment only for parallel pipeline. Since it is simple native java application, unit test covers the test scenarios.
+                    //This is the sample segment only for parallel pipeline. Since it is simple native java application, unit test covers the test scenarios. System Integration test can be added later
                     steps 
                     {
                         sh 'mvn -v'
@@ -97,7 +106,7 @@ pipeline
             
             // The code below is with "docker' label as mentioned in Agent1. Any agent with a label name "docker" will be picked and code will be executed.
             //The code is executed only for "main" branch.
-	        //Values are fetched from environment variables.
+	    //Values are fetched from environment variables.
             agent 
 		    {
                 node 
@@ -115,14 +124,14 @@ pipeline
 			    {
                     steps 
 				    {
-                        sh 'docker build -t $IMAGE_NAME/$APP_NAME .'
+                        sh 'docker build -t $REPO_NAME:$APP_NAME .'
                     }
                 }
                 stage('Login into docker hub') 
 			    {
                     steps 
 		    		{
-                        sh 'echo $DOCKERCREDENTIALS_PSW | docker login $DOCKER_HUB -u $DOCKERCREDENTIALS_USR --password-stdin'
+                        sh 'echo $DOCKERCREDENTIALS_PSW | docker login -u $DOCKERCREDENTIALS_USR --password-stdin'
                     }
                 }
 			     
@@ -131,8 +140,8 @@ pipeline
                     //Tag the file and push it to DockerHub.
                     steps 
 		  		    {
-					    sh 'docker tag $IMAGE_NAME/$APP_NAME $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'
-					    sh 'docker push $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'	
+					    sh 'docker tag $REPO_NAME:$APP_NAME $REPO_NAME:$APP_NAME-$BUILD_NUMBER'
+					    sh 'docker push $REPO_NAME:$APP_NAME-$BUILD_NUMBER'	
                     }
         
                     
@@ -146,7 +155,7 @@ pipeline
 		        always 
                 {
                     sh 'docker logout'
-                    echo "Logout from Docker Hub by using plugin"
+                    echo 'Logout from Docker Hub by using plugin'
                 }
             }
             
@@ -157,22 +166,23 @@ pipeline
         {
             steps 
             {
-                echo "This is my Production step"
+                echo 'This is my Production step'
             }
         }
 
        
 	   
     }
+    //Post information in the screen in case of build failed. More global variables can be added.
     post ('final message')
     {
         failure 
         {
-            //using the parameters generated from Jenkins
-            echo 'Build Number: $BUILD_NO'
+            //using the global variables generated from Jenkins
+            echo "current build number: ${currentBuild.number}"
             echo "is failed"
             echo "For more details, Please refer below URL"
-            echo '$JENKINS_URL'
+	    echo "Jenkins URL: ${JENKINS_URL}"
         
         }
     }  
