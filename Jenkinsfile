@@ -11,14 +11,12 @@ pipeline
     environment 
 	{
         //Set the environmental variables to be used in the script below.
-		//Docker Hub location where the file will be pushed to.
-		DOCKER_HUB = 'hub.docker.com' 
 		//This is the credential stored in Jenkins Global Credentials with "docker_id"
         	DOCKERCREDENTIALS = credentials('docker_id')
         	CI = 'true'
-        	IMAGE_NAME = 'johnreethu/parallel-pipeline'
+        	REPO_NAME = 'johnreethu/parallel-pipeline'
 		GITHUB_LINK = 'github.com/johnreethu/parallel-pipeline'
-		APP_NAME = 'BMICalculator'
+		APP_NAME = 'bmi_calculator'
 		
 	}
 	
@@ -82,9 +80,6 @@ pipeline
                     //This is the sample segment only for parallel pipeline. Since it is simple native java application, unit test covers the test scenarios.
                     steps 
                     {
-                        sh 'java -version'
-                        sh 'java'
-                        sh 'javac'
                         sh 'mvn -v'
                         sh 'docker -v'
                         sh 'systemctl status docker'
@@ -118,14 +113,14 @@ pipeline
 			    {
                     steps 
 				    {
-                        sh 'docker build -t $IMAGE_NAME/$APP_NAME .'
+                        sh 'docker build -t $REPO_NAME:$APP_NAME .'
                     }
                 }
                 stage('Login into docker hub') 
 			    {
                     steps 
 		    		{
-                        sh 'echo $DOCKERCREDENTIALS_PSW | docker login $DOCKER_HUB -u $DOCKERCREDENTIALS_USR --password-stdin'
+                        sh 'echo $DOCKERCREDENTIALS_PSW | docker login -u $DOCKERCREDENTIALS_USR --password-stdin'
                     }
                 }
 			     
@@ -134,15 +129,11 @@ pipeline
                     //Tag the file and push it to DockerHub.
                     steps 
 		  		    {
-					    sh 'docker tag $IMAGE_NAME/$APP_NAME $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'
-					    sh 'docker push $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'	
-					    if (success)
-					    {
-						    echo "Image is stored in Docker Hub"
-						
-					    }
-					
+					    sh 'docker tag $REPO_NAME:$APP_NAME $REPO_NAME:$APP_NAME-$BUILD_NUMBER'
+					    sh 'docker push $REPO_NAME:$APP_NAME-$BUILD_NUMBER'	
                     }
+        
+                    
                 }
             }
 
@@ -153,7 +144,7 @@ pipeline
 		        always 
                 {
                     sh 'docker logout'
-                    echo "Logout from Docker Hub by using plugin"
+                    echo 'Logout from Docker Hub by using plugin'
                 }
             }
             
@@ -164,20 +155,24 @@ pipeline
         {
             steps 
             {
-                echo "This is my Production step"
+                echo 'This is my Production step'
             }
         }
-	    post ('final message')
-	    {
-        	failure 
-		    {
-			//using the parameters generated from Jenkins
-			echo "Build Numbe: " $BUILD_NO
-			echo "is failed"
-			echo "For more details, Please refer below URL"
-			echo $JENKINS_URL
-			
-        	}
-    	}  
+
+       
+	   
     }
+    post ('final message')
+    {
+        failure 
+        {
+            //using the parameters generated from Jenkins
+            echo 'Build Number: $BUILD_NO'
+            echo "is failed"
+            echo "For more details, Please refer below URL"
+            echo '$JENKINS_URL'
+        
+        }
+    }  
+
 }
