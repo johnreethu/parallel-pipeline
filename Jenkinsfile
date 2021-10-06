@@ -12,7 +12,7 @@ pipeline
 	{
         //Set the environmental variables to be used in the script below.
 		//Docker Hub location where the file will be pushed to.
-		DOCKER_HUB = 'hub.docker.com' 
+		DOCKER_HUB = 'hub.docker.com/repository/docker/' 
 		//This is the credential stored in Jenkins Global Credentials with "docker_id"
         	DOCKERCREDENTIALS = credentials('docker_id')
         	CI = 'true'
