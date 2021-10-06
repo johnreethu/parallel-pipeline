@@ -144,7 +144,7 @@ pipeline
 		        always 
                 {
                     sh 'docker logout'
-                    echo "Logout from Docker Hub by using plugin"
+                    echo 'Logout from Docker Hub by using plugin'
                 }
             }
             
@@ -155,7 +155,7 @@ pipeline
         {
             steps 
             {
-                echo "This is my Production step"
+                echo 'This is my Production step'
             }
         }
 
