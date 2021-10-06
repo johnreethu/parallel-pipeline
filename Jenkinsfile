@@ -7,12 +7,13 @@ Date of Completion : 05-Oct-2021
 Reference Online Material: https://www.jenkins.io/doc/book/pipeline/syntax/ (Pipeline Syntax)
 Reference YouTube: https://www.youtube.com/watch?v=qQS7Idaq_ME&list=PLvBBnHmZuNQJeznYL2F-MpZYBUeLIXYEe (CloudBees TV - Darin Pope)
 Reference Github: https://github.com/darinpope/multibranch-sample-app
+Reference Github: https://github.com/rlennon/Parallel_Jenkins_Demo
 Further References : Lecture Notes given by Ruth Lennon, online references, blogs & YouTube videos.
 */
 
 pipeline 
 {
-  //Provide agent label that are entered in node set up for explicit reference to node or agent any can be added too.
+  //Provide agent label that are entered in nodes in jenkins for explicit reference to specific node or "agent any" can be added.
   agent
     {
         node 
@@ -50,9 +51,9 @@ pipeline
         {
             steps 
             {
-                //This will checkout the code from Repo, but it is commented as we are using webhook for the code.
+                	//This will checkout the code from Repo, but it is commented as we are using webhook for the code.
 		        echo "This is my CheckOut step"
-		    //checkout([$class: 'GitHub', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: $GITHUB_LINK]]])      
+		    	//checkout([$class: 'GitHub', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: $GITHUB_LINK]]])      
             }
         }
         
