@@ -138,19 +138,20 @@ pipeline
 			     
                 stage('Push the image to docker hub') 
 			    {
-                    //Tag the file that is from the repo docker file and push it to DockerHub. Tagging is always important. Push comment will place the image in Docker Hub.
-                    steps 
+				    //Tag the file that is from the repo docker file and push it to DockerHub. Tagging is always important to identify the image.
+				    //Multiple tags can be added. Push comment will place the image in Docker Hub with the tag information.
+				    //Tag may be a string or global variables from jenkins such as $BUILD_NO,$JOB_ID,$JOB_NAME,$NODE_NAME,$NODE_LABELS
+                    		steps 
 		  		    {
-					    sh 'docker tag $REPO_NAME:$APP_NAME $REPO_NAME:$APP_NAME-$BUILD_NUMBER'
-					    sh 'docker push $REPO_NAME:$APP_NAME-$BUILD_NUMBER'	
-                    }
-        
+					    sh 'docker tag $REPO_NAME:$APP_NAME $REPO_NAME:$APP_NAME-$JOB_NAME'
+					    sh 'docker push $REPO_NAME:$APP_NAME-$JOB_NAME'	
+                    			}      
                     
-                }
+                	}
             }
 
             
-            post  ('logout')
+            post  ('logout from dockerhub')
             {
                 //It is the best practice to logout from docker to ensure the security is imposed.
 		always 
@@ -162,17 +163,18 @@ pipeline
             
         }
 	
-	    //Dummy Code for Production deployment.
+	//Dummy Code for Production deployment.
         stage ('production') 
         {
             steps 
             {
-                echo 'This is my Production step'
+                echo 'This is my Production step. This can be step when publishing to servers, cloud, etc.'
             }
         }       
 	   
     }
-    //Post information in the screen in case of build failed. More global variables can be added.
+    //Post information in the screen in case of build failed. More global variables can be added. The can be sent through an email or short messages.
+    //SMTP server info to be configured for sending mails.
     post ('final message')
     {
         failure 
