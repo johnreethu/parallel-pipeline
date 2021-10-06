@@ -14,7 +14,7 @@ pipeline
 		//This is the credential stored in Jenkins Global Credentials with "docker_id"
         	DOCKERCREDENTIALS = credentials('docker_id')
         	CI = 'true'
-        	IMAGE_NAME = 'johnreethu/parallel-pipeline'
+        	REPO_NAME = 'johnreethu/parallel-pipeline'
 		GITHUB_LINK = 'github.com/johnreethu/parallel-pipeline'
 		APP_NAME = 'bmi_calculator'
 		
@@ -113,7 +113,7 @@ pipeline
 			    {
                     steps 
 				    {
-                        sh 'docker build -t $IMAGE_NAME/$APP_NAME .'
+                        sh 'docker build -t $REPO_NAME:$APP_NAME .'
                     }
                 }
                 stage('Login into docker hub') 
@@ -129,8 +129,8 @@ pipeline
                     //Tag the file and push it to DockerHub.
                     steps 
 		  		    {
-					    sh 'docker tag $IMAGE_NAME/$APP_NAME $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'
-					    sh 'docker push $IMAGE_NAME/$APP_NAME:VERSION-$BUILD_NUMBER'	
+					    sh 'docker tag $REPO_NAME:$APP_NAME $REPO_NAME:$APP_NAME:VERSION-$BUILD_NUMBER'
+					    sh 'docker push $REPO_NAME:$APP_NAME:VERSION-$BUILD_NUMBER'	
                     }
         
                     
