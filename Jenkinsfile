@@ -11,7 +11,8 @@ Declaration : The code has been written through the knowledge gained from Lectur
 
 pipeline 
 {
-    agent
+  //Provide agent label that are entered in node set up for explicit reference to node or agent any can be added too.
+  agent
     {
         node 
 	    {
@@ -21,12 +22,12 @@ pipeline
     
     environment 
 	{
-        //Set the environmental variables to be used in the script below.
+       		//Set the environmental variables to be used in the script below.
 		//This is the credential stored in Jenkins Global Credentials with "docker_id"
         	DOCKERCREDENTIALS = credentials('docker_id')        	
         	REPO_NAME = 'johnreethu/parallel-pipeline'
 		GITHUB_LINK = 'github.com/johnreethu/parallel-pipeline'
-		APP_NAME = 'bmi_calculator'
+		IMAGE_NAME = 'bmi_calculator'
 		
 	}
 	
@@ -143,8 +144,8 @@ pipeline
 				    //Tag may be a string or global variables from jenkins such as $BUILD_NO,$JOB_ID,$JOB_NAME,$NODE_NAME,$NODE_LABELS
                     		steps 
 		  		    {
-					    sh 'docker tag $REPO_NAME:$APP_NAME $REPO_NAME:$APP_NAME-$JOB_NAME'
-					    sh 'docker push $REPO_NAME:$APP_NAME-$JOB_NAME'	
+					    sh 'docker tag $REPO_NAME:$IMAGE_NAME $REPO_NAME:$IMAGE_NAME-$JOB_NAME'
+					    sh 'docker push $REPO_NAME:$IMAGE_NAME-$JOB_NAME'	
                     			}      
                     
                 	}
